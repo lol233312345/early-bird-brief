@@ -38,7 +38,7 @@ export default async function HomePage() {
         <div className="banner-content">
           <div className="banner-title">今日总体</div>
           <div className="banner-text">{bannerText}</div>
-          <div className="banner-note">组合逻辑：取两份晨报中更保守的那一盏灯（红 > 黄 > 绿）</div>
+          <div className="banner-note">组合逻辑：取两份晨报中更保守的那一盏灯（红 {'>'} 黄 {'>'} 绿）</div>
         </div>
       </div>
       <main className="grid">
