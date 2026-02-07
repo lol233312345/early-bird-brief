@@ -1,0 +1,3 @@
+display_name: 每日航空简报
+short_description: 生成严格24小时新鲜度的航空新闻与低时长岗位Markdown简报。
+default_prompt: 生成今日航空新闻与低时长飞行员岗位简报，严格仅保留过去24小时信息，并按固定Markdown表格格式输出。
