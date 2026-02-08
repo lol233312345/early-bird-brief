@@ -42,15 +42,7 @@ export default async function HomePage() {
         </div>
       </div>
       <main className="grid">
-        <BriefCard
-          title="飞行职业晨报"
-          emoji="✈️"
-          bullets={aviationSummary.keyLines}
-          status={aviationSummary.status}
-          updatedAt={aviationSummary.updatedAt}
-          href="/brief/aviation"
-          emptyHint="暂无摘要"
-        />
+        
         <BriefCard
           title="宏观风险晨报"
           emoji="🌍"
