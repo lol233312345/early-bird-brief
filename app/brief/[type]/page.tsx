@@ -1,45 +1,36 @@
-import Link from 'next/link';
-import MarkdownView from '../../../components/MarkdownView';
-import { readBrief } from '../../../lib/readBrief';
+import fs from 'fs/promises';
+import path from 'path';
+import { formatZhDate } from './formatDate';
 
-const TITLE_MAP = {
-  aviation: '飞行职业晨报',
-  macro: '宏观风险晨报'
-} as const;
+export type BriefType = 'aviation' | 'macro' | 'global-aviation';
 
-type PageProps = {
-  params: { type: 'aviation' | 'macro' | 'global-aviation' };
+export type BriefReadResult = {
+  exists: boolean;
+  raw?: string;
+  updatedAt?: string;
+  error?: string;
 };
 
-export default async function BriefDetailPage({ params }: PageProps) {
-  const { type } = params;
-  const brief = await readBrief(type);
+export async function readBrief(type: BriefType): Promise<BriefReadResult> {
+  try {
+    const filePath = path.resolve(process.cwd(), 'data', `${type}.md`);
+    const stat = await fs.stat(filePath);
+    const raw = await fs.readFile(filePath, 'utf8');
+    const updatedAt = formatZhDate(stat.mtime);
 
-  if (!brief.exists) {
-    return (
-      <div className="detail">
-        <div className="detail-header">
-          <h1>{TITLE_MAP[type]}</h1>
-          <span className="updated">更新时间：未知</span>
-        </div>
-        <div className="error-block">{brief.error ?? '文件不可用'}</div>
-        <Link className="link" href="/">
-          返回首页
-        </Link>
-      </div>
-    );
+    if (type === 'aviation') {
+      // Some aviation specific logic here
+    }
+
+    return {
+      exists: true,
+      raw,
+      updatedAt,
+    };
+  } catch (error: any) {
+    if (error.code === 'ENOENT') {
+      return { exists: false, error: '文件不存在' };
+    }
+    return { exists: false, error: error.message };
   }
-
-  return (
-    <div className="detail">
-      <div className="detail-header">
-        <h1>{TITLE_MAP[type]}</h1>
-        <span className="updated">更新时间：{brief.updatedAt ?? '未知'}</span>
-      </div>
-      <MarkdownView raw={brief.raw} />
-      <Link className="link" href="/">
-        返回首页
-      </Link>
-    </div>
-  );
 }
