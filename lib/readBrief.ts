@@ -118,16 +118,35 @@ export async function readBriefSummary(type: BriefType): Promise<Summary> {
     const updatedAt = formatZhDate(stat.mtime);
 
     if (type === 'aviation') {
-      const sectionLines = extractSectionLines(raw, '## 今日投递建议');
-      const status = extractConclusionFromLines(sectionLines) || "未知";
-      const keyLines = pickSummaryLines(sectionLines, 3, 5);
-      return {
-        status,
-        signal: signalFromStatus(status),
-        updatedAt,
-        keyLines
-      };
-    }
+  // 1️⃣ 先尝试标准摘要区
+  const sectionLines = extractSectionLines(raw, '## 今日投递建议');
+
+  // 2️⃣ 如果没写摘要，就从全文里抓“编号条目”
+  let keyLines: string[] = [];
+  let status = '未知';
+
+  if (sectionLines.length > 0) {
+    keyLines = pickSummaryLines(sectionLines, 3, 5);
+    status = extractConclusionFromLines(sectionLines) || '未知';
+  } else {
+    // 👉 自动从 1. 2. 3. 中提炼
+    const allLines = normalizeLines(raw);
+    const numbered = allLines
+      .filter(l => /^\d+\./.test(l))
+      .slice(0, 5)
+      .map(stripBulletPrefix);
+
+    keyLines = numbered.length ? numbered : [];
+    status = numbered.length ? '自动摘要（未人工标注）' : '缺失';
+  }
+
+  return {
+    status,
+    signal: signalFromStatus(status),
+    updatedAt,
+    keyLines
+  };
+}
 
    if (type === 'global-aviation') {
   const lines = normalizeLines(raw);
@@ -172,17 +191,16 @@ export async function readBrief(type: BriefType): Promise<BriefReadResult> {
   const filePath = path.join(process.cwd(), 'data', DATA_MAP[type]);
   try {
     const stat = await fs.stat(filePath);
-    if (stat.size === 0) {
-      return {
-        type,
-        exists: false,
-        updatedAt: null,
-        raw: '',
-        summaryLines: [],
-        conclusion: null,
-        error: '文件为空，请先运行 automation 写入 data/*.md'
-      };
-    }
+    if (type === 'global-aviation') {
+  return {
+    type,
+    exists: true,
+    updatedAt,
+    raw,
+    summaryLines: pickSummaryLines(normalizeLines(raw), 3, 8),
+    conclusion: null
+  };
+}
     const raw = await fs.readFile(filePath, 'utf8');
     const updatedAt = formatZhDate(stat.mtime);
 
