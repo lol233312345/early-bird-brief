@@ -2,12 +2,26 @@
 set -euo pipefail
 
 cd "$(dirname "$0")"
+
+# 1) 运行你的“生成晨报”的命令（如果 automation 已经生成好了，这行可以不要）
+# 例如：node scripts/generate-briefs.mjs
+# 或者：python scripts/generate.py
+# 或者：这里留空
+
+# 2) 确保 data 目录存在
 mkdir -p data
 
-# 生成 macro（把下面这一行换成你能在终端里跑通的“生成宏观简报命令”）
-codex run --skill daily-macro-risk-brief > data/macro.md
+# 3) 提交 data/*.md（只提交 markdown）
+git add data/*.md
 
-# 生成 aviation（同理）
-codex run --skill daily-aviation-brief > data/aviation.md
+# 4) 如果没有变化，就退出（避免每天空 commit）
+if git diff --cached --quiet; then
+  echo "No brief changes to commit."
+  exit 0
+fi
 
-echo "Updated at: $(date)"
+# 5) 自动 commit + push（用当天日期做 message）
+msg="chore: update briefs $(date +%F)"
+git commit -m "$msg"
+git push
+echo "Pushed: $msg"
