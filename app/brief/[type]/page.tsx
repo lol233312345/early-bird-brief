@@ -1,9 +1,9 @@
 import fs from 'fs/promises';
 import path from 'path';
 
-export type BriefType = 'aviation' | 'macro' | 'global-aviation';
+type BriefType = 'aviation' | 'macro' | 'global-aviation';
 
-export type BriefReadResult = {
+type BriefReadResult = {
   type: BriefType;
   exists: boolean;
   updatedAt: string | null;
@@ -13,7 +13,7 @@ export type BriefReadResult = {
   error?: string;
 };
 
-export type Summary = {
+type Summary = {
   status: string;
   signal: 'green' | 'yellow' | 'red';
   updatedAt?: string;
@@ -103,7 +103,7 @@ function signalFromStatus(status: string): 'green' | 'yellow' | 'red' {
   return 'yellow';
 }
 
-export async function readBriefSummary(type: BriefType): Promise<Summary> {
+async function readBriefSummary(type: BriefType): Promise<Summary> {
   const mapped = DATA_MAP[type];
   if (!mapped) return { status: '缺失', signal: 'red', keyLines: [] };
 
@@ -148,7 +148,7 @@ export async function readBriefSummary(type: BriefType): Promise<Summary> {
   }
 }
 
-export async function readBrief(type: BriefType): Promise<BriefReadResult> {
+async function readBrief(type: BriefType): Promise<BriefReadResult> {
   const mapped = DATA_MAP[type];
   if (!mapped) {
     return {
