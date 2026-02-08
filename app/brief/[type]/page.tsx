@@ -138,6 +138,7 @@ export async function readBriefSummary(type: BriefType): Promise<Summary> {
       return { status, signal: keyLines.length ? 'yellow' : 'red', updatedAt, keyLines };
     }
 
+    // macro
     const sectionLines = extractSectionLines(raw, '## 今日结论');
     const keyLines = extractMacroConclusion(sectionLines.length ? sectionLines : normalizeLines(raw));
     const status = keyLines.join(' | ');
@@ -205,6 +206,7 @@ export async function readBrief(type: BriefType): Promise<BriefReadResult> {
       };
     }
 
+    // macro
     const sectionLines = extractSectionLines(raw, '## 今日结论');
     const summaryLines = extractMacroConclusion(sectionLines.length ? sectionLines : normalizeLines(raw));
 
