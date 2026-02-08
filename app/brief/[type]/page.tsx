@@ -8,7 +8,7 @@ const TITLE_MAP = {
 } as const;
 
 type PageProps = {
-  params: { type: 'aviation' | 'macro' };
+  params: { type: 'aviation' | 'macro' | 'global-aviation' };
 };
 
 export default async function BriefDetailPage({ params }: PageProps) {
